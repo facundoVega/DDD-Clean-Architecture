@@ -11,6 +11,9 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.ToTable("users");
         builder.HasKey(user => user.Id );
 
+        builder.Property(user => user.Id)
+        .HasConversion(userId => userId!.Value, value => new UserId(value));
+
         builder.Property(user => user.Name)
         .HasMaxLength(200)
         .HasConversion(name => name!.value, value => new Name(value));
@@ -23,6 +26,14 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         .HasMaxLength(400)
         .HasConversion(email => email!.value, value => new Email(value));
 
+        builder.Property(user => user.PasswordHash)
+        .HasMaxLength(2000)
+        .HasConversion(password => password!.Value, value => new PasswordHash(value));
+
         builder.HasIndex(user => user.Email).IsUnique();
+
+        builder.HasMany(x => x.Roles)
+        .WithMany()
+        .UsingEntity<UserRole>();
     }
 }

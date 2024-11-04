@@ -4,14 +4,14 @@ using CleanArchitecture.Domain.Vehicles;
 
 namespace CleanArchitecture.Domain.Vehicles;
 
-public sealed class Vehicle : Entity
+public sealed class Vehicle : Entity<VehicleId>
 {
     private Vehicle()
     {
         
     }
     public Vehicle(
-        Guid id,
+        VehicleId id,
         Model model,
         Vin vin,
         Currency price,

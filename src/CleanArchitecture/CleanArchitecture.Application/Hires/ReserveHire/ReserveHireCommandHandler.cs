@@ -4,8 +4,8 @@ using CleanArchitecture.Domain.Hires;
 using CleanArchitecture.Domain.Users;
 using CleanArchitecture.Domain.Vehicles;
 using CleanArchitecture.Applications.Abstractions.Clock;
-using CleanArchitecture.Domain.Users;
 using CleanArchitecture.Application.Exceptions;
+using System.Net.Http.Headers;
 
 namespace CleanArchitecture.Application.Hires.ReserveHire;
 
@@ -41,14 +41,16 @@ internal sealed class ReserveHireCommandHandler :
         CancellationToken cancellationToken
         )
     {
-        var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var userId = new UserId(request.UserId);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
-        if(user is null)
+        if(user is null) 
         {
             return Result.Failure<Guid>(UserErrors.NotFound);
         }
 
-        var  vehicle = await _vehicleRepository.GetByIdAsync(request.VehicleId, cancellationToken);
+        var vehicleId = new VehicleId(request.VehicleId);
+        var  vehicle = await _vehicleRepository.GetByIdAsync(vehicleId, cancellationToken);
 
         if(vehicle is null)
         {
@@ -66,7 +68,7 @@ internal sealed class ReserveHireCommandHandler :
         {
             var hire = Hire.Reserve(
                 vehicle,
-                user.Id,
+                user.Id!,
                 duration,
                 _dateTimeProvider.currentTime,
                 _priceService   
@@ -76,7 +78,7 @@ internal sealed class ReserveHireCommandHandler :
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return hire.Id;
+            return hire.Id!.Value;
         }
         catch(ConcurrencyException )
         {

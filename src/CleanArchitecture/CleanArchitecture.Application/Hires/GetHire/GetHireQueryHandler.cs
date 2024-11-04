@@ -23,23 +23,23 @@ internal sealed class GetQueryHandler : IQueryHandler<GetHireQuery, HireResponse
 
         var sql = """ 
             SELECT 
-                id AS Id
+                id AS Id,
                 vehicle_id AS VehicleId,
                 user_id AS UserID,
                 status AS Status,
-                price_per_period AS HirePrice,
-                price_per_period_currency_type AS CurrencyTypeHire,
-                maintenance_price AS MaintenancePrice,
-                maintenance_price_currency_type AS MaintenanceCurrencyType,
-                appliance_price AS AppliancePrice,
-                appliance_price_currency_type AS ApplianceCurrencyType,
-                total_price AS TotalPrice,
+                period_price_amount AS HirePrice,
+                period_price_currency_type AS CurrencyTypeHire,
+                maintenance_amount AS MaintenancePrice,
+                maintenance_currency_type AS MaintenanceCurrencyType,
+                appliances_amount AS AppliancePrice,
+                appliances_currency_type AS ApplianceCurrencyType,
+                total_price_amount AS TotalPrice,
                 total_price_currency_type AS TotalPriceCurrencyType,
                 duration_start AS DurationStart,
                 duration_end AS DurationEnd,
                 creation_date AS CreationDate
             FROM hires WHERE id=@hireId 
-        """;
+        """; 
 
         var hire = await connection.QueryFirstOrDefaultAsync<HireResponse>(
             sql,

@@ -1,6 +1,5 @@
 using CleanArchitecture.Domain.Shared;
 using CleanArchitecture.Domain.Vehicles;
-using CleanArchitecture.Domain.Vehicles;
 
 namespace CleanArchitecture.Domain.Hires;
 

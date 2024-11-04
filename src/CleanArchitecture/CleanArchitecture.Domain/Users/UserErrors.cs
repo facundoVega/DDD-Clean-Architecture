@@ -13,4 +13,10 @@ public static class UserErrors
         "User.InvalidCredentials",
         "Credentials are wrong"
     );
+
+    
+    public static Error  AlreadyExists = new Error(
+        "User.AlreadyExists",
+        "The user already exists on the Database"
+    );
 }

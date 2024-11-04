@@ -15,7 +15,7 @@ public class ExceptionHandlingMiddleware
         _logger = logger;
     }
 
-    public async Task InvokeASync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {

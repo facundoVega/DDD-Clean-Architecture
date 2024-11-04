@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Infrastructure.Repositories;
 
-internal sealed class HireRepository : Repository<Hire>, IHireRepository
+internal sealed class HireRepository : Repository<Hire, HireId>, IHireRepository
 {
     private static readonly HireStatus[] ActiveHireStatuses = {
         HireStatus.Reserved,

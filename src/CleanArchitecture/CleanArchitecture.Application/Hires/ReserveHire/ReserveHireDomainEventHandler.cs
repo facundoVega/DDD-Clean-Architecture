@@ -33,7 +33,7 @@ internal sealed class ReserveHireDomainEventHandler
             return;
         }
 
-        var user = await _userRepository.GetByIdAsync(hire.UserId, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(hire.UserId!, cancellationToken);
 
         if(user is null)
         {

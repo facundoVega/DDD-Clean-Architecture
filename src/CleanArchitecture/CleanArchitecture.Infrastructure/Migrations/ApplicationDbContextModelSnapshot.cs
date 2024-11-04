@@ -25,7 +25,6 @@ namespace CleanArchitecture.Infrastructure.Migrations
             modelBuilder.Entity("CleanArchitecture.Domain.Hires.Hire", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -53,11 +52,11 @@ namespace CleanArchitecture.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("VehicleId")
+                    b.Property<Guid?>("VehicleId")
                         .HasColumnType("uuid")
                         .HasColumnName("vehicle_id");
 
@@ -73,15 +72,46 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.ToTable("hires", (string)null);
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Domain.Permissions.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_permissions");
+
+                    b.ToTable("permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "ReadUser"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "WriteUser"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "UpdateUser"
+                        });
+                });
+
             modelBuilder.Entity("CleanArchitecture.Domain.Reviews.Review", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("comment");
@@ -90,19 +120,19 @@ namespace CleanArchitecture.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("creation_date");
 
-                    b.Property<Guid>("HireId")
+                    b.Property<Guid?>("HireId")
                         .HasColumnType("uuid")
                         .HasColumnName("hire_id");
 
-                    b.Property<int>("Rating")
+                    b.Property<int?>("Rating")
                         .HasColumnType("integer")
                         .HasColumnName("rating");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("VehicleId")
+                    b.Property<Guid?>("VehicleId")
                         .HasColumnType("uuid")
                         .HasColumnName("vehicle_id");
 
@@ -121,10 +151,82 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.ToTable("reviews", (string)null);
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Domain.Roles.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_roles");
+
+                    b.ToTable("roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Client"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Admin"
+                        });
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Domain.Roles.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("role_id");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("permission_id");
+
+                    b.HasKey("RoleId", "PermissionId")
+                        .HasName("pk_roles_permissions");
+
+                    b.HasIndex("PermissionId")
+                        .HasDatabaseName("ix_roles_permissions_permission_id");
+
+                    b.ToTable("roles_permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 1
+                        });
+                });
+
             modelBuilder.Entity("CleanArchitecture.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -143,6 +245,11 @@ namespace CleanArchitecture.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("password_hash");
+
                     b.HasKey("Id")
                         .HasName("pk_users");
 
@@ -153,10 +260,28 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Domain.Users.UserRole", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("role_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("RoleId", "UserId")
+                        .HasName("pk_users_roles");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_users_roles_user_id");
+
+                    b.ToTable("users_roles", (string)null);
+                });
+
             modelBuilder.Entity("CleanArchitecture.Domain.Vehicles.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -191,21 +316,52 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.ToTable("vehicles", (string)null);
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Ingrastructure.Outbox.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("content");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text")
+                        .HasColumnName("error");
+
+                    b.Property<DateTime>("OcurredOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ocurred_on_utc");
+
+                    b.Property<DateTime?>("ProcessedOnUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_on_utc");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_outbox_messages");
+
+                    b.ToTable("outbox_messages", (string)null);
+                });
+
             modelBuilder.Entity("CleanArchitecture.Domain.Hires.Hire", b =>
                 {
                     b.HasOne("CleanArchitecture.Domain.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_hires_user_user_id");
+                        .HasConstraintName("fk_hires_user_user_temp_id1");
 
                     b.HasOne("CleanArchitecture.Domain.Vehicles.Vehicle", null)
                         .WithMany()
                         .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_hires_vehicle_vehicle_id");
+                        .HasConstraintName("fk_hires_vehicle_vehicle_temp_id");
 
                     b.OwnsOne("CleanArchitecture.Domain.Hires.DateRange", "Duration", b1 =>
                         {
@@ -328,8 +484,7 @@ namespace CleanArchitecture.Infrastructure.Migrations
 
                     b.Navigation("Appliances");
 
-                    b.Navigation("Duration")
-                        .IsRequired();
+                    b.Navigation("Duration");
 
                     b.Navigation("Maintenance");
 
@@ -343,23 +498,51 @@ namespace CleanArchitecture.Infrastructure.Migrations
                     b.HasOne("CleanArchitecture.Domain.Hires.Hire", null)
                         .WithMany()
                         .HasForeignKey("HireId")
+                        .HasConstraintName("fk_reviews_hires_hire_id1");
+
+                    b.HasOne("CleanArchitecture.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("fk_reviews_user_user_temp_id1");
+
+                    b.HasOne("CleanArchitecture.Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .HasConstraintName("fk_reviews_vehicle_vehicle_temp_id");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Domain.Roles.RolePermission", b =>
+                {
+                    b.HasOne("CleanArchitecture.Domain.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_reviews_hires_hire_id");
+                        .HasConstraintName("fk_roles_permissions_permissions_permissions_id");
+
+                    b.HasOne("CleanArchitecture.Domain.Roles.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_roles_permissions_roles_role_id");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Domain.Users.UserRole", b =>
+                {
+                    b.HasOne("CleanArchitecture.Domain.Roles.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_users_roles_roles_role_id");
 
                     b.HasOne("CleanArchitecture.Domain.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_reviews_user_user_id");
-
-                    b.HasOne("CleanArchitecture.Domain.Vehicles.Vehicle", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_reviews_vehicle_vehicle_id");
+                        .HasConstraintName("fk_users_roles_users_user_id1");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Domain.Vehicles.Vehicle", b =>

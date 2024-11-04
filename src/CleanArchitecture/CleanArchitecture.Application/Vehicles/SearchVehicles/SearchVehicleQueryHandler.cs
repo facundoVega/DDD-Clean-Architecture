@@ -35,26 +35,25 @@ internal sealed class SearchVehiclesQueryHandler
         using var connection = _sqlConnectionFactory.CreateConnection();
 
         const string sql = """ 
-        
             SELECT 
             a.id as Id,
             a.model as Model,
             a.vin as Vin,
-            a.amount_price as Price,
-            a.currency_type_price as CurrencyType,
-            a.country_direction as Country,
-            a.department_direction as Department,
-            a.province_direction as Province,
-            a.city_direction as City,
-            a.street_direction as Street
+            a.price_amount as Price,
+            a.price_currency_type as CurrencyType,
+            a.direction_country as Country,
+            a.direction_department as Department,
+            a.direction_province as Province,
+            a.direction_city as City,
+            a.direction_street as Street
             FROM vehicles AS a
-            WHERE NOT EXIST 
+            WHERE NOT EXISTS
             (
                 SELECT 1 
                 FROM hires AS b
                 WHERE 
                     b.vehicle_id = a.id AND
-                    b.duration_Start <= @EndDate AND
+                    b.duration_start <= @EndDate AND
                     b.duration_end >= @StartDate AND
                     b.status = ANY(@ActiveHireStatuses)
             )

@@ -13,6 +13,9 @@ internal sealed class HireConfiguration : IEntityTypeConfiguration<Hire>
         builder.ToTable("hires");
         builder.HasKey(hire => hire.Id);
 
+        builder.Property(hire => hire.Id)
+        .HasConversion(hireId => hireId!.Value, value => new HireId(value));
+
         builder.OwnsOne(hire => hire.PeriodPrice, priceBuilder => {
             priceBuilder.Property(currency => currency.CurrencyType)
             .HasConversion(currencyType => currencyType.Code, code => CurrencyType.FromCode(code!));

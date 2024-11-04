@@ -1,11 +1,21 @@
+using System.Net;
+using Asp.Versioning;
+using CleanArchitecture.Api.Utils;
+using CleanArchitecture.Application.Vehicles.GetVehiclesByPagination;
 using CleanArchitecture.Applications.Vehicles.SearchVehicles;
+using CleanArchitecture.Domain.Abstractions;
+using CleanArchitecture.Domain.Permissions;
+using CleanArchitecture.Domain.Vehicles;
+using CleanArchitecture.Infrastructure.Authentication;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitecture.Api.Controllers.Vehicles;
 
 [ApiController]
-[Route("api/vehicles")]
+[ApiVersion(ApiVersions.V1)]
+[Route("api/v{version:apiVersion}/vehicles")]
 public class VehicleController : ControllerBase
 {
     private readonly  ISender _sender;
@@ -15,7 +25,8 @@ public class VehicleController : ControllerBase
         _sender = sender;
     }
 
-    [HttpGet]
+    [HasPermission(PermissionEnum.ReadUser)]
+    [HttpGet("search")]
     public async Task<IActionResult> SearchVehicles(
         DateOnly startDate,
         DateOnly endDate,
@@ -26,4 +37,18 @@ public class VehicleController : ControllerBase
         var results = await _sender.Send(query, cancellationToken);
         return Ok(results.Value);
     }
+
+    [AllowAnonymous]
+    [HttpGet("getPagination", Name = "PaginationVehicles")]
+    [ProducesResponseType(typeof(PaginationResult<Vehicle, VehicleId>), 
+        (int)HttpStatusCode.OK)]
+
+    public async Task<ActionResult<PaginationResult<Vehicle, VehicleId>>> GetPaginationVehicle(
+        [FromQuery] GetVehiclesByPaginationQuery request
+    )
+    {
+        var results = await _sender.Send(request);
+        return Ok(results);
+    }
+
 }
